@@ -1,0 +1,155 @@
+---
+import '../styles/global.css';
+
+// 1. Accept new SEO props, with fallbacks just in case
+const { 
+  title = "Local Trade Professionals", 
+  description = "Reliable, licensed, and professional trade services." 
+} = Astro.props;
+
+// 1. Fetch both site settings and theme settings
+const graphqlQuery = `
+  query {
+    allSiteSettings {
+      phone
+      email
+    }
+    allThemeSettings {
+      primaryColor {
+        hex
+      }
+      fontFamily
+      buttonShape
+      logo {
+        asset {
+          url
+        }
+      }
+    }
+  }
+`;
+
+const response = await fetch('https://mc1571jp.api.sanity.io/v2025-09-19/graphql/production/default', {
+  method: 'POST',
+  headers: { 'Content-Type': 'application/json' },
+  body: JSON.stringify({ query: graphqlQuery }),
+});
+
+const json = await response.json();
+const siteData = json?.data?.allSiteSettings?.[0];
+const theme = json?.data?.allThemeSettings?.[0];
+
+// 2. Extract the variables with safe fallbacks
+const brandColor = theme?.primaryColor?.hex || '#c2561a';
+const fontName = theme?.fontFamily || 'Inter';
+
+// 3. Dynamically build the Google Font URL based on their selection
+const fontUrl = `https://fonts.googleapis.com/css2?family=${fontName}:wght@400;500;700;900&display=swap`;
+
+const buttonShape = theme?.buttonShape || 'rounded-md';
+const logoUrl = theme?.logo?.asset?.url;
+
+
+---
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width" />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    
+    <!-- Open Graph tags for when they share their site on Facebook/iMessage -->
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:type" content="website" />
+    
+    <!-- Dynamically load the chosen font -->
+    <link href={fontUrl} rel="stylesheet">
+  </head>
+  
+  <body class="text-zinc-900 antialiased selection:bg-zinc-200" style={`font-family: '${fontName}', sans-serif;`}>
+
+  <!-- 5. Astro's superpower: Injecting JS variables directly into CSS -->
+    <style define:vars={{ brandColor }}>
+      :root {
+        --theme-primary: var(--brandColor);
+      }
+    </style>
+    
+    <!-- GLOBAL STICKY HEADER -->
+    <header class="w-full bg-white border-b border-zinc-100 sticky top-0 z-50">
+      <div class="max-w-7xl mx-auto px-6 h-24 flex items-center justify-between">
+       <a href="/" class="flex items-center shrink-0">
+          {logoUrl ? (
+            /* h-10 w-auto ensures a massive 4K image upload won't blow up your navbar */
+            <img src={logoUrl} alt="Company Logo" class="h-10 w-auto object-contain" />
+          ) : (
+            <span class="font-black text-xl tracking-tight text-zinc-900 uppercase">
+              SMITH<span class="text-[var(--theme-primary)]">PLUMBING.</span>
+            </span>
+          )}
+        </a>
+        
+        <nav class="hidden lg:flex items-center gap-8 text-sm font-medium text-zinc-500">
+          <a href="/" class="bg-zinc-100 text-zinc-900 px-4 py-2 rounded-md">Home</a>
+          <a href="/#services" class="hover:text-zinc-900 transition-colors">Services</a>
+          <a href="/#reviews" class="hover:text-zinc-900 transition-colors">Reviews</a>
+          <a href="/#quote" class="hover:text-zinc-900 transition-colors">Contact</a>
+        </nav>
+
+        <div class="hidden md:flex items-center gap-5">
+          <span class="border border-zinc-200 text-zinc-500 text-xs px-3 py-1.5 rounded-full">Lic# 123456</span>
+          <a href={`tel:${siteData?.phone || "5558675309"}`} class="font-bold text-zinc-900 hover:text-[var(--theme-primary)] transition-colors">
+            {siteData?.phone || "(555) 867-5309"}
+          </a>
+          <a href="/#quote" class={`bg-[var(--theme-primary)] text-white text-sm font-bold px-6 py-3 hover:opacity-90 transition-colors ${buttonShape}`}>
+  Free Quote
+</a>
+        </div>
+      </div>
+    </header>
+
+    <!-- PAGE SPECIFIC CONTENT INJECTED HERE -->
+    <slot />
+
+    <!-- GLOBAL FOOTER -->
+    <footer class="bg-zinc-900 text-zinc-300 py-12 px-6 mt-auto">
+      <div class="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-10 mb-12">
+        <div>
+          <a href="/" class="mb-4 inline-block">
+            {logoUrl ? (
+              <img src={logoUrl} alt="Company Logo" class="h-10 w-auto object-contain grayscale opacity-75 hover:grayscale-0 hover:opacity-100 transition-all" />
+            ) : (
+              <span class="font-black text-2xl tracking-tighter text-white uppercase">
+                SMITH<span class="text-[var(--theme-primary)]">PLUMBING.</span>
+              </span>
+            )}
+          </a>
+          <p class="text-sm leading-relaxed text-zinc-400 max-w-xs mt-2">
+            Professional, licensed, and reliable trade services. We deliver upfront pricing and fast response times.
+          </p>
+        </div>
+        <div>
+          <h4 class="text-white font-bold uppercase tracking-tight mb-4">Quick Links</h4>
+          <ul class="space-y-3 text-sm font-medium">
+            <li><a href="/#services" class="hover:text-[var(--theme-primary)] transition-colors">Our Services</a></li>
+            <li><a href="/#quote" class="hover:text-[var(--theme-primary)] transition-colors">Request a Quote</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4 class="text-white font-bold uppercase tracking-tight mb-4">Contact</h4>
+          <ul class="space-y-3 text-sm font-medium">
+            <li><a href={`tel:${siteData?.phone || "5558675309"}`} class="hover:text-[var(--theme-primary)] transition-colors">{siteData?.phone || "(555) 867-5309"}</a></li>
+            <li><a href={`mailto:${siteData?.email || "contact@smithplumbing.com"}`} class="hover:text-[var(--theme-primary)] transition-colors">{siteData?.email || "contact@smithplumbing.com"}</a></li>
+          </ul>
+        </div>
+      </div>
+      <div class="max-w-7xl mx-auto pt-8 border-t border-zinc-800 text-xs md:text-sm flex flex-col md:flex-row justify-between items-center gap-4 text-zinc-500">
+        <p>&copy; {new Date().getFullYear()} Smith Plumbing. All rights reserved.</p>
+        <p>Website by <a href="#" class="text-white font-bold hover:text-[var(--theme-primary)] transition-colors">Your WaaS Agency</a></p>
+      </div>
+    </footer>
+    
+  </body>
+</html>
