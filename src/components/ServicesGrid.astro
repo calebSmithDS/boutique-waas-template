@@ -1,0 +1,40 @@
+---
+const { services } = Astro.props;
+---
+
+<section id="services" class="py-20 bg-zinc-50">
+  <div class="max-w-7xl mx-auto px-6">
+    <div class="text-center mb-16">
+      <h2 class="text-4xl font-black text-zinc-900 uppercase tracking-tight mb-4">Our Services</h2>
+      <div class="w-24 h-1 bg-[var(--theme-primary)] mx-auto"></div>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+      {services.map((service) => (
+        <a href={`/services/${service.slug.current}`} class="group block bg-white rounded-2xl shadow-sm hover:shadow-xl transition-all duration-300 overflow-hidden border border-zinc-100">
+          <div class="h-48 overflow-hidden relative">
+            {service.mainImage?.asset?.url ? (
+              <img 
+                src={service.mainImage.asset.url} 
+                alt={service.title} 
+                class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" 
+              />
+            ) : (
+              <div class="w-full h-full bg-zinc-200 flex items-center justify-center">
+                <span class="text-zinc-400 font-medium">No Image</span>
+              </div>
+            )}
+          </div>
+          <div class="p-8">
+            <h3 class="text-xl font-bold text-zinc-900 mb-3 group-hover:text-[var(--theme-primary)] transition-colors">
+              {service.title}
+            </h3>
+            <p class="text-zinc-600 line-clamp-3">
+              {service.shortDescription || "Click to learn more about this service."}
+            </p>
+          </div>
+        </a>
+      ))}
+    </div>
+  </div>
+</section>

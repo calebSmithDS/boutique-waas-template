@@ -12,6 +12,11 @@ export default defineType({
   ],
   fields: [
     defineField({
+      name: 'tenantId',
+      title: 'Tenant ID',
+      type: 'string',
+    }),
+    defineField({
       name: 'heroHeadline',
       title: 'Hero Headline',
       type: 'string',

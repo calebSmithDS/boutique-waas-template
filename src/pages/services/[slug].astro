@@ -1,52 +1,51 @@
 ---
+// 1. Tell Astro to render this page on the server on-demand
+export const prerender = false;
+
 import '../../styles/global.css';
 import Layout from '../../layouts/Layout.astro';
 
-// 1. getStaticPaths is an Astro function that runs at build time.
-// It fetches every service from Sanity and generates a unique URL for each one.
-export async function getStaticPaths() {
-  const graphqlQuery = `
-    query {
-      allService {
-        title
-        slug {
-          current
-        }
-        description,
-        seoTitle,
-        seoDescription
-      }
+// 1. Grab BOTH the slug from the URL and the tenant from the middleware
+const { slug } = Astro.params;
+const tenantId = Astro.locals.tenantId;
+
+
+
+// 2. Query Sanity for a service that matches BOTH the slug and the tenantId
+const graphqlQuery = `
+  query GetSingleService($tenantId: String!, $slug: String!) {
+    allService(where: { 
+      tenantId: { eq: $tenantId }, 
+      slug: { current: { eq: $slug } } 
+    }) {
+      title
+      description
+      seoTitle
+      seoDescription
     }
-  `;
+  }
+`;
 
-  // Fetch from your deployed Sanity GraphQL endpoint
-  const response = await fetch('https://mc1571jp.api.sanity.io/v2025-09-19/graphql/production/default', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ query: graphqlQuery }),
-  });
+const response = await fetch('https://mc1571jp.api.sanity.io/v2025-09-19/graphql/production/default', {
+  method: 'POST',
+  headers: { 'Content-Type': 'application/json' },
+  body: JSON.stringify({ 
+    query: graphqlQuery,
+    variables: { tenantId, slug } 
+  }),
+});
 
-  const json = await response.json();
-  const services = json.data.allService;
+const json = await response.json();
+const service = json?.data?.allService?.[0];
 
-  // Map over the data and return the URL params and the specific service data
-  return services.map((service: any) => {
-    return {
-      params: { slug: service.slug.current },
-      props: { service },
-    };
-  });
+// 3. If someone types a bad URL, throw a 404
+if (!service) {
+  return Astro.redirect('/404');
 }
-
-// 2. Extract the specific service data passed from getStaticPaths
-const { service } = Astro.props;
 ---
 
-  
- 
-
 <Layout 
-  title={service?.seoTitle || `${service.title} | Smith Plumbing`} 
+  title={service?.seoTitle || `${service.title} | Our Services`} 
   description={service?.seoDescription || `Professional ${service.title} services.`}
 >
   <body class="bg-zinc-50 text-zinc-900 font-sans antialiased selection:bg-zinc-200">
