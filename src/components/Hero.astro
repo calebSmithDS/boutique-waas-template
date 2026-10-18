@@ -3,7 +3,7 @@ const { siteData } = Astro.props;
 const heroImageUrl = siteData?.heroImage?.asset?.url || "https://images.unsplash.com/photo-1621905251189-08b45d6a269e?q=80&w=2069&auto=format&fit=crop";
 ---
 
-<section class="max-w-7xl mx-auto px-6 py-16 md:py-24">
+<section id="hero-section" class="max-w-7xl mx-auto px-6 py-16 md:py-24">
   <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16 items-center">
     
     <!-- Left Column: Text Content -->
@@ -13,7 +13,7 @@ const heroImageUrl = siteData?.heroImage?.asset?.url || "https://images.unsplash
       </div>
       
       <div>
-        <h1 class="text-5xl md:text-6xl lg:text-7xl font-black text-zinc-900 uppercase tracking-tight leading-[1.1] mb-6">
+        <h1 class="text-4xl sm:text-5xl md:text-5xl lg:text-5xl xl:text-6xl 2xl:text-7xl font-black text-zinc-900 uppercase tracking-tighter leading-[1.1] mb-6">
           {siteData?.heroHeadline || "PROFESSIONAL SERVICE YOU CAN TRUST."}
         </h1>
         <p class="text-lg md:text-xl text-zinc-500 leading-relaxed mb-8 max-w-lg">
@@ -22,7 +22,7 @@ const heroImageUrl = siteData?.heroImage?.asset?.url || "https://images.unsplash
       </div>
       
       <div class="flex flex-col sm:flex-row gap-4 mb-6">
-        <a href="#quote" class="bg-[var(--theme-primary)] text-white text-center font-bold px-8 py-4 rounded-lg hover:opacity-90 transition-colors shadow-sm">
+        <a href="#quote" id="main-quote-btn" class="bg-[var(--theme-primary)] text-white text-center font-bold px-8 py-4 rounded-lg hover:opacity-90 transition-colors shadow-sm">
           Get a Free Quote
         </a>
         <a href="#services" class="bg-white text-zinc-900 text-center font-bold px-8 py-4 rounded-lg border-2 border-[#0f172a] hover:bg-zinc-50 transition-colors">

@@ -1,4 +1,21 @@
 ---
+interface Service {
+  title: string;
+  shortDescription?: string;
+  slug: {
+    current: string;
+  };
+  mainImage?: {
+    asset?: {
+      url: string;
+    };
+  };
+}
+
+interface Props {
+  services: Service[];
+}
+
 const { services } = Astro.props;
 ---
 

@@ -65,7 +65,7 @@ console.log("Services:", services);
   title={siteData?.seoTitle || "Smith Plumbing | Emergency Plumber Adelaide"} 
   description={siteData?.seoDescription || "Fast, reliable, 24/7 plumbing services in the Adelaide Hills."}
 >
-  <body>
+  
     <Hero siteData={siteData} />
     {services.length > 0 && (
           <ServicesGrid services={services} />
@@ -73,9 +73,9 @@ console.log("Services:", services);
 
     <WhyChooseUs />
 
-    <Testimonials testimonials={siteData?.testimonials || []} />
+    <Testimonials testimonials={testimonials} />
 
     <LeadCapture phone={siteData?.phone || "0400 000 000"} />
 
-  </body>
+  
 </Layout>

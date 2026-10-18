@@ -111,12 +111,13 @@ const schemaString = JSON.stringify(localBusinessSchema);
       }
     </style>
     
-    <!-- GLOBAL STICKY HEADER -->
+ <!-- GLOBAL STICKY HEADER -->
     <header class="w-full bg-white border-b border-zinc-100 sticky top-0 z-50">
       <div class="max-w-7xl mx-auto px-6 h-24 flex items-center justify-between">
-       <a href="/" class="flex items-center shrink-0">
+        
+        <!-- Logo Area -->
+        <a href="/" class="flex items-center shrink-0 z-50">
           {logoUrl ? (
-            /* h-10 w-auto ensures a massive 4K image upload won't blow up your navbar */
             <img src={logoUrl} alt="Company Logo" class="h-10 w-auto object-contain" />
           ) : (
             <span class="font-black text-xl tracking-tight text-zinc-900 uppercase">
@@ -125,6 +126,7 @@ const schemaString = JSON.stringify(localBusinessSchema);
           )}
         </a>
         
+        <!-- Desktop Navigation (Hidden on Mobile) -->
         <nav class="hidden lg:flex items-center gap-8 text-sm font-medium text-zinc-500">
           <a href="/" class="bg-zinc-100 text-zinc-900 px-4 py-2 rounded-md">Home</a>
           <a href="/#services" class="hover:text-zinc-900 transition-colors">Services</a>
@@ -132,23 +134,99 @@ const schemaString = JSON.stringify(localBusinessSchema);
           <a href="/#quote" class="hover:text-zinc-900 transition-colors">Contact</a>
         </nav>
 
+        <!-- Desktop Contact & CTA (Hidden on Mobile) -->
         <div class="hidden md:flex items-center gap-5">
           <span class="border border-zinc-200 text-zinc-500 text-xs px-3 py-1.5 rounded-full">Lic# 123456</span>
           <a href={`tel:${tenantData?.phone || siteData?.phone || "5558675309"}`} class="font-bold text-zinc-900 hover:text-[var(--theme-primary)] transition-colors">
             {tenantData?.phone || siteData?.phone || "(555) 867-5309"}
           </a>
           <a href="/#quote" class={`bg-[var(--theme-primary)] text-white text-sm font-bold px-6 py-3 hover:opacity-90 transition-colors ${buttonShape}`}>
-  Free Quote
-</a>
+            Free Quote
+          </a>
         </div>
+
+        <!-- Mobile Hamburger Button (Hidden on Desktop) -->
+        <button id="mobile-menu-btn" class="lg:hidden p-2 text-zinc-600 hover:text-zinc-900 focus:outline-none z-50" aria-label="Toggle menu">
+          <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+          </svg>
+        </button>
+
+      </div>
+
+      <!-- Mobile Dropdown Menu -->
+      <div id="mobile-menu" class="hidden absolute top-24 left-0 w-full bg-white border-b border-zinc-100 shadow-xl lg:hidden flex-col items-center py-6 gap-6 text-lg font-bold text-zinc-800">
+        <a href="/" class="mobile-link hover:text-[var(--theme-primary)] transition-colors">Home</a>
+        <a href="/#services" class="mobile-link hover:text-[var(--theme-primary)] transition-colors">Services</a>
+        <a href="/#reviews" class="mobile-link hover:text-[var(--theme-primary)] transition-colors">Reviews</a>
+        <a href="/#quote" class="mobile-link hover:text-[var(--theme-primary)] transition-colors">Contact</a>
       </div>
     </header>
 
     <!-- PAGE SPECIFIC CONTENT INJECTED HERE -->
     <slot />
 
+<!-- MOBILE FLOATING QUOTE BUTTON -->
+    <div id="mobile-sticky-bar" class="md:hidden fixed bottom-6 right-6 z-50 transition-transform duration-300 translate-y-[200%]">
+      <a href="/#quote" class="flex items-center gap-2 bg-[var(--theme-primary)] text-white font-bold text-sm uppercase tracking-wide px-6 py-4 rounded-full shadow-2xl hover:scale-105 transition-transform border border-white/20">
+        <!-- Optional tiny lightning bolt or chat icon to make it pop -->
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+        </svg>
+        Get Quote
+      </a>
+    </div>
+
+    <!-- HAMBURGER SCRIPT -->
+    <script>
+      const btn = document.getElementById('mobile-menu-btn');
+      const menu = document.getElementById('mobile-menu');
+      const links = document.querySelectorAll('.mobile-link');
+
+      if (btn && menu) {
+        // Toggle menu on click
+        btn.addEventListener('click', () => {
+          menu.classList.toggle('hidden');
+          menu.classList.toggle('flex');
+        });
+
+        // Close menu when a link is clicked
+        links.forEach(link => {
+          link.addEventListener('click', () => {
+            menu.classList.add('hidden');
+            menu.classList.remove('flex');
+          });
+        });
+      }
+
+      // Floating Button Scroll Logic
+      const stickyBar = document.getElementById('mobile-sticky-bar');
+      const mainQuoteBtn = document.getElementById('main-quote-btn');
+
+      if (stickyBar && mainQuoteBtn) {
+        const observer = new IntersectionObserver((entries) => {
+          entries.forEach(entry => {
+            if (entry.isIntersecting) {
+              // Main button is visible on screen -> Hide the floating button completely
+              stickyBar.classList.add('translate-y-[200%]');
+              stickyBar.classList.remove('translate-y-0');
+            } else {
+              // Main button has scrolled out of view -> Pop the floating button up
+              stickyBar.classList.remove('translate-y-[200%]');
+              stickyBar.classList.add('translate-y-0');
+            }
+          });
+        }, { 
+          // 0 means it triggers the exact pixel the main button leaves the screen
+          threshold: 0 
+        }); 
+
+        observer.observe(mainQuoteBtn);
+      }
+    </script>
+
     <!-- GLOBAL FOOTER -->
-    <footer class="bg-zinc-900 text-zinc-300 py-12 px-6 mt-auto">
+    <footer class="pb-24 md:pb-0 bg-zinc-900 text-zinc-300 py-12 px-6 mt-auto">
       <div class="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-10 mb-12">
         <div>
           <a href="/" class="mb-4 inline-block">
