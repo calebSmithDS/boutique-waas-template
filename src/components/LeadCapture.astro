@@ -71,3 +71,28 @@ const { phone = "(555) 867-5309" } = Astro.props;
     </div>
   </div>
 </section>
+
+<script>
+  // 1. We append "as HTMLFormElement" to promise TypeScript this is definitely a form
+  const form = document.querySelector('form[name="contact"]') as HTMLFormElement;
+  
+  if (form) {
+    form.addEventListener('submit', (e) => {
+      e.preventDefault(); 
+      
+      const formData = new FormData(form);
+      
+      fetch('/', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        // 2. We append "as any" to bypass TypeScript's outdated rule about URLSearchParams
+        body: new URLSearchParams(formData as any).toString()
+      })
+      .then(() => {
+        console.log("Boom. Sent to Netlify.");
+        form.reset(); 
+      })
+      .catch((error) => console.error('Form submission error:', error));
+    });
+  }
+</script>
