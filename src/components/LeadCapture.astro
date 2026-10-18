@@ -31,10 +31,7 @@ const { phone = "(555) 867-5309" } = Astro.props;
     <!-- Right Side: The Form -->
     <div class="p-10 md:p-12 md:w-7/12">
       
-      <form name="contact" method="POST" data-netlify="true" class="space-y-6">
-        
-        <!-- Hidden input required by Netlify for spam routing -->
-        <input type="hidden" name="form-name" value="contact" />
+      <form name="contact" method="POST" class="space-y-6">
 
         <div>
           <label for="name" class="block text-sm font-bold text-zinc-900 uppercase tracking-tight mb-2">Full Name</label>
@@ -73,23 +70,26 @@ const { phone = "(555) 867-5309" } = Astro.props;
 </section>
 
 <script>
-  // 1. We append "as HTMLFormElement" to promise TypeScript this is definitely a form
   const form = document.querySelector('form[name="contact"]') as HTMLFormElement;
   
   if (form) {
     form.addEventListener('submit', (e) => {
       e.preventDefault(); 
       
+      // 1. Scoop up the form data
       const formData = new FormData(form);
       
-      fetch('/', {
+      // 2. Convert it into a clean JSON dictionary
+      const data = Object.fromEntries(formData.entries());
+      
+      // 3. Shoot it directly to your Pipedream URL
+      fetch('https://eot7rvp721r6dvj.m.pipedream.net', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-        // 2. We append "as any" to bypass TypeScript's outdated rule about URLSearchParams
-        body: new URLSearchParams(formData as any).toString()
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data)
       })
       .then(() => {
-        console.log("Boom. Sent to Netlify.");
+        console.log("Boom. Sent straight to Pipedream.");
         form.reset(); 
       })
       .catch((error) => console.error('Form submission error:', error));
