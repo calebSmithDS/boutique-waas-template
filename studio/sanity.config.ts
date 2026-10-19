@@ -1,9 +1,7 @@
-import {defineConfig} from 'sanity'
-import {structureTool} from 'sanity/structure'
-// import {visionTool} from '@sanity/vision'
+import { defineConfig } from 'sanity'
+import { structureTool } from 'sanity/structure'
 import { colorInput } from '@sanity/color-input'
-import {schemaTypes} from './schemaTypes'
-import { CustomLogo } from './logo'
+import { schemaTypes } from './schemaTypes'
 
 export default defineConfig({
   name: 'default',
@@ -27,9 +25,10 @@ export default defineConfig({
                     S.list()
                       .title('Client Content')
                       .items([
-                        // 1. Main Tenant Profile
+                        
+                        // 1. Edit the Core Tenant Configuration (replaces site & theme settings)
                         S.listItem()
-                          .title('Tenant Settings')
+                          .title('Tenant Configuration')
                           .child(
                             S.document()
                               .documentId(documentId)
@@ -49,56 +48,32 @@ export default defineConfig({
                               ])
                           ),
 
-                        // 3. Filtered Testimonials List
+                        // 3. Filtered Reviews List (replaces testimonials)
                         S.listItem()
-                          .title('Testimonials')
+                          .title('Reviews')
                           .child(
                             S.documentList()
-                              .title('Testimonials')
-                              .filter('_type == "testimonial" && tenantId == *[_type == "tenant" && _id == $parentId][0].tenantId')
+                              .title('Reviews')
+                              .filter('_type == "review" && tenantId == *[_type == "tenant" && _id == $parentId][0].tenantId')
                               .params({ parentId: documentId.replace('drafts.', '') })
                               .initialValueTemplates([
-                                S.initialValueTemplateItem('testimonial-by-tenant', { parentId: documentId })
-                              ])
-                          ),
-
-                        // 4. Filtered Site Settings List
-                        S.listItem()
-                          .title('Site Settings')
-                          .child(
-                            S.documentList()
-                              .title('Site Settings')
-                              .filter('_type == "siteSettings" && tenantId == *[_type == "tenant" && _id == $parentId][0].tenantId')
-                              .params({ parentId: documentId.replace('drafts.', '') })
-                              .initialValueTemplates([
-                                S.initialValueTemplateItem('siteSettings-by-tenant', { parentId: documentId })
-                              ])
-                          ),
-
-                        // 5. Filtered Theme Settings List
-                        S.listItem()
-                          .title('Theme Settings')
-                          .child(
-                            S.documentList()
-                              .title('Theme Settings')
-                              .filter('_type == "themeSettings" && tenantId == *[_type == "tenant" && _id == $parentId][0].tenantId')
-                              .params({ parentId: documentId.replace('drafts.', '') })
-                              .initialValueTemplates([
-                                S.initialValueTemplateItem('themeSettings-by-tenant', { parentId: documentId })
+                                S.initialValueTemplateItem('review-by-tenant', { parentId: documentId })
                               ])
                           )
+                          
                       ])
                   )
               )
           ])
     }),
-    // visionTool(), 
-    colorInput()],
+    colorInput()
+  ],
 
   schema: {
     types: schemaTypes,
-    // 1. Define the custom templates
-   templates: (prev) => [
+    
+    // Auto-tagging templates for the new schemas
+    templates: (prev) => [
       ...prev,
       
       // Template for Services
@@ -114,37 +89,11 @@ export default defineConfig({
         }
       },
       
-      // Template for Testimonials
+      // Template for Reviews
       {
-        id: 'testimonial-by-tenant',
-        title: 'Testimonial',
-        schemaType: 'testimonial',
-        parameters: [{ name: 'parentId', type: 'string' }],
-        value: async (params: { parentId: string }, context: any) => {
-          const client = context.getClient({ apiVersion: '2023-10-01' });
-          const parentDoc = await client.fetch(`*[_id == $id][0]`, { id: params.parentId.replace('drafts.', '') });
-          return { tenantId: parentDoc.tenantId };
-        }
-      },
-
-      // Template for Site Settings
-      {
-        id: 'siteSettings-by-tenant',
-        title: 'Site Settings',
-        schemaType: 'siteSettings',
-        parameters: [{ name: 'parentId', type: 'string' }],
-        value: async (params: { parentId: string }, context: any) => {
-          const client = context.getClient({ apiVersion: '2023-10-01' });
-          const parentDoc = await client.fetch(`*[_id == $id][0]`, { id: params.parentId.replace('drafts.', '') });
-          return { tenantId: parentDoc.tenantId };
-        }
-      },
-
-      // Template for Theme Settings
-      {
-        id: 'themeSettings-by-tenant',
-        title: 'Theme Settings',
-        schemaType: 'themeSettings',
+        id: 'review-by-tenant',
+        title: 'Review',
+        schemaType: 'review',
         parameters: [{ name: 'parentId', type: 'string' }],
         value: async (params: { parentId: string }, context: any) => {
           const client = context.getClient({ apiVersion: '2023-10-01' });

@@ -1,7 +1,5 @@
-import siteSettings from './siteSettings'
-import services from './services'
-import testimonial from './testimonial'
-import themeSettings from './themeSettings'
-import tenent from './tenent'
+import { tenant } from "./tenant"
+import { service } from "./service"
+import { review } from "./review"
 
-export const schemaTypes = [siteSettings, services, testimonial, themeSettings, tenent]
+export const schemaTypes = [tenant, service, review]

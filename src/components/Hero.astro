@@ -1,6 +1,15 @@
 ---
-const { siteData } = Astro.props;
-const heroImageUrl = siteData?.heroImage?.asset?.url || "https://images.unsplash.com/photo-1621905251189-08b45d6a269e?q=80&w=2069&auto=format&fit=crop";
+// 1. Accept the unified tenant data
+const { tenant = {} } = Astro.props;
+
+// 2. Set up variables with clean fallbacks
+const headline = tenant.heroHeadline || "PROFESSIONAL SERVICE YOU CAN TRUST.";
+const subheadline = tenant.heroSubheadline || "A fast, mobile-first small business website template. Fully customizable for any trade or service business.";
+const heroImageUrl = tenant.heroImage?.asset?.url || "https://images.unsplash.com/photo-1621905251189-08b45d6a269e?q=80&w=2069&auto=format&fit=crop";
+
+// Format phone number dynamically
+const phone = tenant.publicPhone || "(555) 867-5309";
+const phoneLink = `tel:${phone.replace(/[^0-9]/g, '')}`;
 ---
 
 <section id="hero-section" class="max-w-7xl mx-auto px-6 py-16 md:py-24">
@@ -14,10 +23,10 @@ const heroImageUrl = siteData?.heroImage?.asset?.url || "https://images.unsplash
       
       <div>
         <h1 class="text-4xl sm:text-5xl md:text-5xl lg:text-5xl xl:text-6xl 2xl:text-7xl font-black text-zinc-900 uppercase tracking-tighter leading-[1.1] mb-6">
-          {siteData?.heroHeadline || "PROFESSIONAL SERVICE YOU CAN TRUST."}
+          {headline}
         </h1>
         <p class="text-lg md:text-xl text-zinc-500 leading-relaxed mb-8 max-w-lg">
-          {siteData?.heroSubheadline || "A fast, mobile-first small business website template. Fully customizable for any trade or service business."}
+          {subheadline}
         </p>
       </div>
       
@@ -31,7 +40,7 @@ const heroImageUrl = siteData?.heroImage?.asset?.url || "https://images.unsplash
       </div>
       
       <p class="text-sm font-bold text-zinc-600">
-        Call <a href="tel:5558675309" class="text-zinc-900 hover:text-[var(--theme-primary)] transition-colors">(555) 867-5309</a>
+        Call <a href={phoneLink} class="text-zinc-900 hover:text-[var(--theme-primary)] transition-colors">{phone}</a>
       </p>
     </div>
 
